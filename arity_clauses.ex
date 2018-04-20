@@ -1,6 +1,6 @@
 defmodule Calc do
   # factorial(5)
-  # 5 * ( 5 - 1) * (5 - 1 - 1) ... *(5 -  1 -1-1-1-11)
+  # 5 * ( 5 - 1) * (5 - 1 - 1) ... *(5 -  1 -1-1-1-1)
   def factorial(0), do: 1
 
   def factorial(a) when is_integer(a) and a > 0 do
