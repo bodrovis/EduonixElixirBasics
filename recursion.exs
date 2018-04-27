@@ -36,5 +36,8 @@ defmodule ListUtils do
   end
 end
 
+
+
+
 ListUtils.alt_max([2,3,100,1,50,4]) |>
 IO.inspect
