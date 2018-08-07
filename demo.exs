@@ -3,7 +3,41 @@ defmodule Demo do
 
   # interface function
   def start(initial_state) do
-    GenServer.start(__MODULE__, initial_state)
+    GenServer.start(__MODULE__, initial_state, name: __MODULE__)
+  end
+
+  def sqrt do
+    #GenServer.cast(:calculator, :sqrt)
+    GenServer.cast(__MODULE__, :sqrt)
+  end
+
+  def add(number) do
+    GenServer.cast(__MODULE__, {:add, number})
+  end
+
+  def result do
+    # timeout is 5 seconds
+    GenServer.call __MODULE__, :result
+  end
+
+  # Synchronous request
+  def handle_call(:result, _,  current_state) do
+    { :reply, current_state, current_state }
+  end
+
+  def terminate(reason, current_state) do
+    IO.puts "TERMINATED!"
+    reason |> IO.inspect
+    current_state |> IO.inspect
+  end
+
+  # Asynchronous request
+  def handle_cast(:sqrt, current_state) do
+    { :noreply, :math.sqrt(current_state) }
+  end
+
+  def handle_cast({:add, number}, current_state) do
+    { :noreply, current_state + number }
   end
 
   # Callback is run when the server is started
@@ -17,4 +51,7 @@ defmodule Demo do
   end
 end
 
-{:ok, pid} = Demo.start(0) |> IO.inspect
+{:ok, _} = Demo.start(4)
+Demo.sqrt |> IO.inspect
+Demo.add(10) |> IO.inspect
+Demo.result |> IO.inspect
