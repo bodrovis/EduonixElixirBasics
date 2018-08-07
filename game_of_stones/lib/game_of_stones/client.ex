@@ -10,7 +10,7 @@ defmodule GameOfStones.Client do
 
   defp parse(arguments) do
     {opts, _, _} = OptionParser.parse( arguments, switches: [stones: :integer] )
-    opts |> Keyword.get(:stones, 30)
+    opts |> Keyword.get(:stones, Application.get_env(:game_of_stones, :default_stones))
   end
 
   defp start_game! do
