@@ -1,46 +1,21 @@
-defmodule GameOfStones.GameClient do
-  def play(initial_stones_num \\ 30) do
-    initial_stones_num |> GameOfStones.GameServer.start
-    start_game!()
-  end
+defmodule GameOfStones.Server do
+  @moduledoc """
+  Documentation for GameOfStones.
+  """
 
-  defp start_game! do
-    case GameOfStones.GameServer.stats do
-      {player, current_stones} ->
-        IO.puts "Welcome!  It's player #{player} turn. #{current_stones} in the pile."
-    end
-
-    take()
-  end
-
-  defp take do
-    case GameOfStones.GameServer.take( ask_stones() ) do
-      {:next_turn, next_player, stones_count} ->
-        IO.puts "\nPlayer #{next_player}  turns next. Stones: #{stones_count}"
-        take()
-      {:winner, winner} ->
-        IO.puts "\nPlayer #{winner} wins!!!"
-      {:error, reason} ->
-        IO.puts "\nThere was an error: #{reason}"
-        take()
-    end
-  end
-
-  defp ask_stones do
-    IO.gets("\nPlease take from 1 to 3 stones:\n") |>
-    String.trim |>
-    Integer.parse |>
-    stones_to_take()
-  end
-
-  def stones_to_take({count, _}), do: count
-  def stones_to_take(:error), do: 0
-end
-
-defmodule GameOfStones.GameServer do
   use GenServer
   @server_name __MODULE__
 
+  @doc """
+  Hello world.
+
+  ## Examples
+
+      iex> GameOfStones.hello()
+      :world
+
+  """
+  
   # Interface functions
   def start(initial_stones_num \\ 30) do
     GenServer.start @server_name, initial_stones_num, name: @server_name
@@ -102,5 +77,3 @@ defmodule GameOfStones.GameServer do
   defp next_player(1), do: 2
   defp next_player(2), do: 1
 end
-
-GameOfStones.GameClient.play(10)
