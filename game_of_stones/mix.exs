@@ -18,7 +18,8 @@ defmodule GameOfStones.MixProject do
   def application do
     [
       env: [ default_stones: 30 ],
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: { GameOfStones.Application, [] } # callback module
     ]
   end
 

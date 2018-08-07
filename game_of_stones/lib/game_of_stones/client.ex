@@ -4,23 +4,18 @@ defmodule GameOfStones.Client do
   end
 
   def play(initial_stones_num \\ 30) do
-    initial_stones_num |> GameOfStones.Server.start
-    start_game!()
-  end
-
-  defp parse(arguments) do
-    {opts, _, _} = OptionParser.parse( arguments, switches: [stones: :integer] )
-    opts |> Keyword.get(:stones, Application.get_env(:game_of_stones, :default_stones))
-  end
-
-  defp start_game! do
-    case GameOfStones.Server.stats do
+    case GameOfStones.Server.set_stones(initial_stones_num) do
       {player, current_stones} ->
         IO.puts "Welcome!  It's player #{player} turn. #{current_stones} in the pile." |>
         Colors.green
     end
 
     take()
+  end
+
+  defp parse(arguments) do
+    {opts, _, _} = OptionParser.parse( arguments, switches: [stones: :integer] )
+    opts |> Keyword.get(:stones, Application.get_env(:game_of_stones, :default_stones))
   end
 
   defp take do

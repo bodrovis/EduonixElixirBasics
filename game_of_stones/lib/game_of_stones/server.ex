@@ -3,7 +3,7 @@ defmodule GameOfStones.Server do
   Documentation for GameOfStones.
   """
 
-  use GenServer
+  use GenServer, restart: :transient
   @server_name __MODULE__
 
   @doc """
@@ -15,14 +15,18 @@ defmodule GameOfStones.Server do
       :world
 
   """
-  
+
   # Interface functions
-  def start(initial_stones_num \\ 30) do
-    GenServer.start @server_name, initial_stones_num, name: @server_name
+  def start_link(_) do
+    # :started
+    # :game_in_progress
+    # :game_ended
+    IO.puts "Starting Game of Stones server..."
+    GenServer.start_link @server_name, :started, name: @server_name
   end
 
-  def stats do
-    GenServer.call @server_name, :stats
+  def set_stones(initial_stones_num) do
+    GenServer.call @server_name, {:set_stones, initial_stones_num}
   end
 
   def take(num_stones) do
@@ -30,21 +34,21 @@ defmodule GameOfStones.Server do
   end
 
   # Callbacks
-  def init(initial_stones_num) do
-    { :ok,  {1, initial_stones_num} }
+  def init(:started) do
+    { :ok,  {1, 0, :started} }
   end
 
-  def handle_call(:stats,  _, current_state) do
-    { :reply, current_state, current_state }
+  def handle_call({:set_stones, initial_stones_num},  _, {player, _, :started}) do
+    { :reply, {player, initial_stones_num}, {player, initial_stones_num, :game_in_progress} }
   end
 
-  def handle_call({:take, num_stones}, _, {player, current_stones}) do
+  def handle_call({:take, num_stones}, _, {player, current_stones, :game_in_progress}) do
     do_take {player, num_stones, current_stones}
   end
 
-  def terminate(_, _)  do
-    "See you soon!" |> IO.puts
-  end
+  #def terminate(_, _)  do
+  #  "See you soon!" |> IO.puts
+  #end
 
   # Privates
 
@@ -59,19 +63,19 @@ defmodule GameOfStones.Server do
         :error,
         "You can take from 1 to 3 stones, and it should exceed the total count of stones!"
       },
-      {player, current_stones}
+      {player, current_stones, :game_in_progress}
     }
   end
 
   defp do_take({player, num_stones, current_stones}) when
   num_stones == current_stones do
-    { :stop, :normal, {:winner, next_player(player)}, {nil, 0} }
+    { :stop, :normal, {:winner, next_player(player)}, {nil, 0, :game_ended} }
   end
 
   defp do_take({player, num_stones, current_stones}) do
     next_p = next_player(player)
     new_stones = current_stones - num_stones
-    { :reply, {:next_turn, next_p, new_stones}, {next_p,  new_stones} }
+    { :reply, {:next_turn, next_p, new_stones}, {next_p,  new_stones, :game_in_progress} }
   end
 
   defp next_player(1), do: 2
