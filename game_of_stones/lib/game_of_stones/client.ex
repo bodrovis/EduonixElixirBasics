@@ -7,7 +7,8 @@ defmodule GameOfStones.Client do
   defp start_game! do
     case GameOfStones.Server.stats do
       {player, current_stones} ->
-        IO.puts "Welcome!  It's player #{player} turn. #{current_stones} in the pile."
+        IO.puts "Welcome!  It's player #{player} turn. #{current_stones} in the pile." |>
+        Colors.green
     end
 
     take()
