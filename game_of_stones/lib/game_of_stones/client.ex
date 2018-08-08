@@ -5,9 +5,11 @@ defmodule GameOfStones.Client do
 
   def play(initial_stones_num \\ 30) do
     case GameOfStones.Server.set_stones(initial_stones_num) do
-      {player, current_stones} ->
-        IO.puts "Welcome!  It's player #{player} turn. #{current_stones} in the pile." |>
+      {player, current_stones, :game_in_progress} ->
+        IO.puts "Welcome!  It's player #{player} turn. #{current_stones} stones in the pile." |>
         Colors.green
+      {player, current_stones, :game_continue} ->
+        IO.puts "Continuing the game! It's player #{player} turn. #{current_stones} stones in the pile."
     end
 
     take()

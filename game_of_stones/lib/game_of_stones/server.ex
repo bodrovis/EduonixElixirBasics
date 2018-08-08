@@ -35,15 +35,29 @@ defmodule GameOfStones.Server do
 
   # Callbacks
   def init(:started) do
-    { :ok,  {1, 0, :started} }
+    state = case GameOfStones.Storage.fetch do
+      nil -> {1, 0, :started}
+      saved_state -> saved_state
+    end
+    IO.puts "grabbing the saved state..."
+    state |> IO.inspect
+    { :ok, state }
+  end
+
+  def handle_call({:set_stones, _},  _, {player, num_stones, :game_in_progress} = current_state) do
+    {:reply, {player, num_stones, :game_continue}, current_state}
   end
 
   def handle_call({:set_stones, initial_stones_num},  _, {player, _, :started}) do
-    { :reply, {player, initial_stones_num}, {player, initial_stones_num, :game_in_progress} }
+    new_state = {player, initial_stones_num, :game_in_progress}
+    new_state |> GameOfStones.Storage.store
+    { :reply, new_state, new_state }
   end
 
   def handle_call({:take, num_stones}, _, {player, current_stones, :game_in_progress}) do
-    do_take {player, num_stones, current_stones}
+    reply = do_take {player, num_stones, current_stones}
+    elem(reply, 2) |> GameOfStones.Storage.store
+    reply
   end
 
   #def terminate(_, _)  do
@@ -69,6 +83,7 @@ defmodule GameOfStones.Server do
 
   defp do_take({player, num_stones, current_stones}) when
   num_stones == current_stones do
+    GameOfStones.Storage.fetch_all |> IO.inspect
     { :stop, :normal, {:winner, next_player(player)}, {nil, 0, :game_ended} }
   end
 

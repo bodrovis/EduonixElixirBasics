@@ -5,6 +5,7 @@ defmodule GameOfStones.Application do
     # processes to supervise
 
     children = [
+      GameOfStones.Storage,
       GameOfStones.Server
     ]
 
